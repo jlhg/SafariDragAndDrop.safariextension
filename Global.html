@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>global HTML page</title>
+	<script type="text/javascript">
+	function indexOfCurrentTab() {
+		// Find the index of current tab.
+		var currentTab = safari.application.activeBrowserWindow.activeTab;
+		var tabs = safari.application.activeBrowserWindow.tabs;
+		var index = tabs.length;
+		var len = tabs.length;
+		
+		for (var i= 0; i < len; ++i) {
+			if (currentTab == tabs[i]) {
+				index = i;
+				break;
+			}
+		}
+		
+		return index;
+	}
+	
+	function positionTab(posMask) {
+		var openedTabIndex = 10000;
+		var currentTabIndex = indexOfCurrentTab();
+		
+		switch(posMask) {
+			case 1: openedTabIndex = 10000; break; // At most right
+			case 2: openedTabIndex = currentTabIndex + 1; break; // Next 
+			case 4: openedTabIndex = currentTabIndex; break; // Previous
+			case 8: openedTabIndex = 0; break; // At most left
+			default: break;
+		}
+		
+		return openedTabIndex;
+	}
+	
+	function respondToMessage(theMessageEvent) {
+		if(theMessageEvent.name === "openUrl") {
+			var msg = theMessageEvent.message;
+			var url = msg.url;
+			var posMask = parseInt(msg.posMask);
+			var visibility = msg.visibility;
+			
+			var tab = safari.application.activeBrowserWindow.openTab(
+				msg.visibility, positionTab(posMask));
+			tab.url = url;
+		} else if (theMessageEvent.name === "activateLastTab") {
+			var tabs = safari.application.activeBrowserWindow.tabs;
+			var lastTab = tabs[tabs.length - 1];
+			lastTab.activate();
+		}
+	}
+
+	safari.application.addEventListener("message",respondToMessage,false);
+	</script>
+</head>
+<body>
+</body>
+</html>
