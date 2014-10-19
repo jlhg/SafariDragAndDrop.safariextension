@@ -1,0 +1,8 @@
+Usage:
+
+Drag direction and their functions:
+
+* Top: Open URL from the foreground.
+* Down: Open URL from the background.
+* Left: Open URL at the previous tab.
+* Right: Open URL at the next tab.

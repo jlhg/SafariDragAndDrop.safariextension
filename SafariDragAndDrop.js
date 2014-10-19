@@ -18,18 +18,19 @@ document.addEventListener('drop', function(event){
   var disY = event.pageY - clickedPos.y;
   // console.log("Dis X:" + disX + ", Dis Y:" + disY);
   var mask = calculateNewTabPositionMask(disX, disY);
+  var visibility = calculateNewTabVisibility(disX, disY);
 
   if (regex.test(data)) {
     // Is url, open it.
 
     safari.self.tab.dispatchMessage("openUrl",
-                                    {url: data, posMask: mask, visibility: "background"});
+                                    {url: data, posMask: mask, visibility: visibility});
   } else {
     // Search text.
     var serachedUrl = "http://www.google.com/search?q="
           + encodeURIComponent(data) + "&ie=utf-8&oe=utf-8";
     safari.self.tab.dispatchMessage("openUrl",
-                                    {url: serachedUrl, posMask: mask, visibility: "foreground"}
+                                    {url: serachedUrl, posMask: mask, visibility: visibility}
                                    );
   }
 }, false);
@@ -37,27 +38,30 @@ document.addEventListener('drop', function(event){
 function calculateNewTabPositionMask(disX, disY) {
   // '^' means the current tab.
   var mask = 8; // 00^01
-  if (disY < 0) {
-    // Open tab at the previous or at the next tab.
-    if (disX < 0) {
-      // Open url at the previous tab.
-      mask = 4; // 01^00
-    } else {
-      // Open url at the next tab.
-      mask = 2; // 00^10
-    }
+
+  if (disX < 0) {
+    // Open url at the previous tab.
+    mask = 4; // 01^00
   } else {
-    // Open tab at the most left or at the most right tab.
-    if (disX < 0) {
-      // Open url at the most left tab.
-      mask = 8; // 10^00
-    } else {
-      // Open url at most right tab.
-      mask = 1; // 00^01
-    }
+    // Open url at the next tab.
+    mask = 2; // 00^10
   }
 
   return mask;
+}
+
+function calculateNewTabVisibility(disX, disY) {
+  var visibility = "background";
+
+  if (disY < 0) {
+    // Open url from the foreground.
+    visibility = "foreground";
+  } else {
+    // Open url from the background.
+    visibility = "background";
+  }
+
+  return visibility;
 }
 
 /**
